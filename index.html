@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DWG Fast View - Peta_Situasi_Desa_Menawan.dwg</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000000;
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Toolbar */
+        .toolbar {
+            background-color: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 5px 15px;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .menu-items span { margin-right: 15px; cursor: pointer; color: #aaa; }
+        .menu-items span:hover { color: #fff; }
+
+        /* Main Grid Layout replicating the uploaded image */
+        .cad-workspace {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            gap: 5px;
+            padding: 5px;
+            flex: 1;
+            background-color: #050505;
+        }
+
+        /* Viewports with Magenta borders like the reference image */
+        .viewport {
+            background-color: #000000;
+            border: 1px solid #ff00ff;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .view-main { grid-column: 1 / 2; grid-row: 1 / 3; }
+        .view-detail-1 { grid-column: 2 / 3; grid-row: 1 / 2; }
+        .view-detail-2 { grid-column: 2 / 3; grid-row: 2 / 3; }
+
+        /* Viewport Labels */
+        .vp-label {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            color: #ff00ff;
+            font-size: 14px;
+            text-transform: lowercase;
+            letter-spacing: 2px;
+            pointer-events: none;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background-color: #111;
+            border-top: 1px solid #333;
+            padding: 5px 15px;
+            font-size: 11px;
+            display: flex;
+            justify-content: space-between;
+            color: #888;
+        }
+        
+        /* SVG Styles */
+        svg { width: 100%; height: 100%; }
+        .grid-line { stroke: #1a1a1a; stroke-width: 1; }
+        .contour-line { fill: none; stroke: #333; stroke-width: 0.5; stroke-dasharray: 5,5; }
+        .veg-fill { fill: #3a5f0b; stroke: #5a8a15; stroke-width: 1; }
+        .tree { fill: none; stroke: #a5d452; stroke-width: 1; }
+        .building { fill: none; stroke: #aaa; stroke-width: 1; }
+        .hatch-red { fill: url(#redHatch); }
+        .text-magenta { fill: #ff00ff; font-size: 14px; }
+        .text-cyan { fill: #00ffff; font-size: 16px; font-weight: bold; }
+        .text-yellow { fill: #ffff00; font-size: 16px; font-weight: bold; }
+        .text-white { fill: #ffffff; font-size: 10px; }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <div class="menu-items">
+            <span style="color: #ff00ff; font-weight: bold;">DWG Fast View</span>
+            <span>File</span><span>View</span><span>Draw</span><span>Dimension</span><span>Modify</span>
+            <span>[Layer: TUMPANG_TINDIH_SENGKETA]</span>
+        </div>
+        <div>
+            <span>Ds. Menawan, Klambu, Grobogan - SHM 96 vs SHM 355</span>
+        </div>
+    </div>
+
+    <div class="cad-workspace">
+        <!-- SVG Definitions (Used across all viewports) -->
+        <svg style="display:none;">
+            <defs>
+                <pattern id="grid" width="50" height="50" patternUnits="userSpaceOnUse">
+                    <path d="M 50 0 L 0 0 0 50" class="grid-line" />
+                </pattern>
+                <pattern id="redHatch" width="8" height="8" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                    <line x1="0" y1="0" x2="0" y2="8" stroke="#ff0000" stroke-width="1.5" />
+                </pattern>
+                <pattern id="buildingHatch" width="6" height="6" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                    <line x1="0" y1="0" x2="0" y2="6" stroke="#444" stroke-width="0.5" />
+                </pattern>
+                
+                <!-- Reusable Map Content Group -->
+                <g id="map-content">
+                    <!-- Base Grid -->
+                    <rect x="-1000" y="-1000" width="3000" height="3000" fill="url(#grid)" />
+                    
+                    <!-- Topographic / Decorative Lines matching the reference image style -->
+                    <path d="M 0 100 Q 400 200 800 50 T 1500 200" class="contour-line" />
+                    <path d="M 0 150 Q 450 300 850 150 T 1500 350" class="contour-line" />
+                    <circle cx="500" cy="450" r="350" class="contour-line" />
+                    <circle cx="500" cy="450" r="200" class="contour-line" />
+                    
+                    <!-- Vegetation / Landscaping Area (Curvy Green fill) -->
+                    <path d="M 150 250 C 300 200, 400 350, 600 250 C 700 250, 750 400, 700 600 C 650 800, 400 700, 200 750 C 50 800, 100 400, 150 250 Z" class="veg-fill" />
+                    
+                    <!-- Trees (Circles in vegetation) -->
+                    <circle cx="200" cy="300" r="10" class="tree"/><circle cx="240" cy="280" r="15" class="tree"/>
+                    <circle cx="300" cy="270" r="12" class="tree"/><circle cx="550" cy="280" r="18" class="tree"/>
+                    <circle cx="650" cy="350" r="14" class="tree"/><circle cx="680" cy="450" r="12" class="tree"/>
+                    <circle cx="670" cy="550" r="16" class="tree"/><circle cx="550" cy="650" r="15" class="tree"/>
+                    <circle cx="450" cy="670" r="12" class="tree"/><circle cx="250" cy="700" r="14" class="tree"/>
+                    <circle cx="180" cy="600" r="18" class="tree"/><circle cx="150" cy="500" r="12" class="tree"/>
+
+                    <!-- Roads -->
+                    <!-- Jalan Desa (Selatan) -->
+                    <path d="M 50 800 L 950 800" stroke="#888" stroke-width="2" />
+                    <path d="M 50 840 L 950 840" stroke="#888" stroke-width="2" />
+                    <path d="M 50 820 L 950 820" stroke="#888" stroke-width="1" stroke-dasharray="20,10" />
+                    <text x="750" y="825" class="text-magenta">jalan desa</text>
+
+                    <!-- Buildings and Surrounding Lots -->
+                    <!-- Tanah Afandi (Barat) -->
+                    <rect x="50" y="300" width="150" height="400" class="building" fill="url(#buildingHatch)" />
+                    <text x="60" y="500" class="text-white" transform="rotate(-90 60,500)">tanah nur afandi</text>
+
+                    <!-- Tanah Sukarji / Nurodhi (Utara) -->
+                    <rect x="250" y="100" width="400" height="150" class="building" fill="url(#buildingHatch)" />
+                    <text x="350" y="150" class="text-white">tanah sukarji / nurodhi</text>
+
+                    <!-- Madrasah Ibtidaiyah (Timur) -->
+                    <rect x="700" y="300" width="200" height="400" class="building" fill="url(#buildingHatch)" />
+                    <text x="720" y="500" class="text-white" transform="rotate(90 720,500)">madrasah ibtidaiyah</text>
+                    
+                    <!-- Decorative building blocks (like the reference image arrays) -->
+                    <g stroke="#ff00ff" stroke-width="0.5" fill="none">
+                        <rect x="720" y="320" width="30" height="30"/><rect x="760" y="320" width="30" height="30"/>
+                        <rect x="800" y="320" width="30" height="30"/><rect x="840" y="320" width="30" height="30"/>
+                        <rect x="720" y="650" width="30" height="30"/><rect x="760" y="650" width="30" height="30"/>
+                    </g>
+
+                    <!-- ========================================== -->
+                    <!-- CORE LEGAL DISPUTE OBJECTS                 -->
+                    <!-- ========================================== -->
+                    
+                    <!-- SHM 96 Wakaf (Cyan) - 360m2 (e.g. 18m x 20m -> 180px x 200px) -->
+                    <rect x="300" y="450" width="180" height="200" fill="none" stroke="#00ffff" stroke-width="3" />
+                    <text x="310" y="550" class="text-cyan">SHM 96 (WAKAF)</text>
+                    <text x="310" y="570" class="text-white">Luas: ± 360 m2</text>
+                    <!-- Masjid Building footprint -->
+                    <rect x="320" y="470" width="100" height="120" fill="none" stroke="#00ffff" stroke-width="1" />
+                    <path d="M 320 470 L 420 590 M 420 470 L 320 590" stroke="#00ffff" stroke-width="0.5" />
+
+                    <!-- SHM 355 Abdul Wakid (Yellow) - 420m2 (e.g. 21m x 20m -> 210px x 200px) -->
+                    <!-- Positioned to overlap the East side of the Wakaf land -->
+                    <rect x="420" y="350" width="210" height="200" fill="none" stroke="#ffff00" stroke-width="2.5" stroke-dasharray="10,5" />
+                    <text x="430" y="380" class="text-yellow">SHM 355 (A. WAKID)</text>
+                    <text x="430" y="400" class="text-white">Luas: 420 m2</text>
+
+                    <!-- OVERLAP (Tumpang Tindih) - Red Hatch -->
+                    <!-- Intersection: X from 420 to 480 (60px = 6m... wait, fact says 90m2 (10x9m). Let's adjust!) -->
+                    <!-- Let's make overlap exactly 90px width and 100px height -->
+                    <!-- SHM 96 Right Edge is 480. So overlap starts at 390. -->
+                    <rect x="390" y="450" width="90" height="100" class="hatch-red" stroke="#ff0000" stroke-width="3" />
+                    <text x="395" y="490" fill="#ff0000" font-size="12" font-weight="bold">TUMPANG TINDIH</text>
+                    <text x="395" y="505" fill="#ff0000" font-size="12" font-weight="bold">90 m2 (Area Penjemuran)</text>
+                    
+                    <!-- Dimension Lines for Overlap -->
+                    <!-- Width (9m) -->
+                    <line x1="390" y1="440" x2="480" y2="440" stroke="#fff" stroke-width="1" />
+                    <line x1="390" y1="435" x2="390" y2="445" stroke="#fff" stroke-width="1" />
+                    <line x1="480" y1="435" x2="480" y2="445" stroke="#fff" stroke-width="1" />
+                    <text x="425" y="435" class="text-white">9 m</text>
+                    <!-- Height (10m) -->
+                    <line x1="380" y1="450" x2="380" y2="550" stroke="#fff" stroke-width="1" />
+                    <line x1="375" y1="450" x2="385" y2="450" stroke="#fff" stroke-width="1" />
+                    <line x1="375" y1="550" x2="385" y2="550" stroke="#fff" stroke-width="1" />
+                    <text x="355" y="505" class="text-white">10 m</text>
+
+                    <!-- North Arrow (Compass) -->
+                    <g transform="translate(100, 150) scale(1.5)">
+                        <circle cx="0" cy="0" r="20" fill="none" stroke="#555" stroke-width="1"/>
+                        <path d="M 0 -25 L 8 5 L 0 0 L -8 5 Z" fill="#ccc" />
+                        <text x="-5" y="20" fill="#ccc" font-size="14" font-family="sans-serif">N</text>
+                    </g>
+                </g>
+            </defs>
+        </svg>
+
+        <!-- VIEWPORT 1: MAIN OVERVIEW (Left) -->
+        <div class="viewport view-main">
+            <svg viewBox="0 0 1000 1000">
+                <use href="#map-content" />
+            </svg>
+            <div class="vp-label">desa menawan site plan</div>
+        </div>
+
+        <!-- VIEWPORT 2: SHM 96 WAKAF DETAIL (Top Right) -->
+        <div class="viewport view-detail-1">
+            <svg viewBox="250 350 400 350">
+                <use href="#map-content" />
+            </svg>
+            <div class="vp-label">detail: shm 96 (wakaf)</div>
+        </div>
+
+        <!-- VIEWPORT 3: TUMPANG TINDIH SENGKETA (Bottom Right) -->
+        <div class="viewport view-detail-2">
+            <!-- Zoomed directly into the red overlapping area -->
+            <svg viewBox="350 400 200 200">
+                <use href="#map-content" />
+            </svg>
+            <div class="vp-label">detail: area tumpang tindih</div>
+        </div>
+    </div>
+
+    <!-- Bottom Status Bar / Command Line -->
+    <div class="status-bar">
+        <div>
+            Command: _AREA<br>
+            Specify first corner point or [Object/Add area/Subtract area]:<br>
+            Area = 90.0000, Perimeter = 38.0000
+        </div>
+        <div style="text-align: right; margin-top: 15px;">
+            110.8351° E, 6.9405° S, Z: 0.0000 &nbsp;&nbsp;|&nbsp;&nbsp; MODEL &nbsp;&nbsp;|&nbsp;&nbsp; GRID &nbsp;&nbsp;|&nbsp;&nbsp; OSNAP
+        </div>
+    </div>
+
+</body>
+</html>
